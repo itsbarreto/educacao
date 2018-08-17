@@ -167,8 +167,8 @@ def monta_df_prof_ano(df):
 def monta_df_professores_vs17_resu(df):
     col_chave = list(df.columns)[1]
     pref_col_sit_curso ='TP_SITUACAO_CURSO'
-    colunas = [col_chave,'CO_MUNICIPIO_NASC','CO_MUNICIPIO_END','CO_ENTIDADE','ID_DEPENDENCIA_ADM','COR_RACA'] + [f'{pref_col_sit_curso}_{i}' for i in [1,2,3]]
-    dfa = df.groupby(col_chave).max()
+    colunas = [col_chave,'CO_MUNICIPIO_NASC','CO_MUNICIPIO_END','CO_ENTIDADE','TP_DEPENDENCIA','TP_COR_RACA'] + [f'{pref_col_sit_curso}_{i}' for i in [1,2,3]]
+    dfa = df[colunas].groupby(col_chave).max()
 
     dfa['IN_CIDADE_NATAL'] = dfa['CO_MUNICIPIO_END'] == dfa['CO_MUNICIPIO_NASC']
     dfa.IN_CIDADE_NATAL = dfa.IN_CIDADE_NATAL.astype(np.int8)
