@@ -1,12 +1,17 @@
-import pandas as  import pd
+import pandas as  pd
 import numpy as np
-
+from matplotlib import pyplot as plt
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_score
 
+
+def processa_tudo(model_vars):
+    X_train, X_test, y_train, y_test = gera_datasets(model_vars)
+    clf = modela(X_train,y_train)
+    return avalia(X_test,y_test, clf,model_vars.drop('target',axis=1).columns)
 
 def gera_datasets(model_vars):
     X = model_vars.drop('target',axis=1).values
@@ -33,17 +38,17 @@ def avalia(X_test,y_test, clf,cols):
     # Print the feature ranking
     print("Feature ranking:")
     fi = []
-    for f in range(X.shape[1]):
-        fi.append(cosl[indices[f]])
+    for f in range(X_test.shape[1]):
+        fi.append(cols[indices[f]])
         print("%d. feature %s (%f)" % (f + 1, cols[indices[f]], importances[indices[f]]))
 
     # Plot the feature importances of the forest
     plt.figure()
     plt.title("Feature importances")
-    plt.bar(range(X.shape[1]), importances[indices],
+    plt.bar(range(X_test.shape[1]), importances[indices],
            color="r", yerr=std[indices], align="center")
-    plt.xticks(range(X.shape[1]), indices)
-    plt.xlim([-1, X.shape[1]])
+    plt.xticks(range(X_test.shape[1]), indices)
+    plt.xlim([-1, X_test.shape[1]])
     plt.show()
     display(precision_score(y_test, y_pred, average='macro')  )
 
