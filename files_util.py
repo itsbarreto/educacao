@@ -30,3 +30,8 @@ def extrai_arq(arq):
         pass
     list(map(lambda f: patoolib.extract_archive(f, outdir=dst_ano(arq)), [f for f in glob(f'{TMP_PATH}*/DADOS/*') if (('DOCENTE' in f or 'MATRICULA' in f) and '_CO' in f) or 'ESCOLAS' in f or 'TURMA' in f]))
     shutil.rmtree(TMP_PATH,ignore_errors=True)
+
+
+
+baixa_img = lambda url, nm: urllib.request.urlretrieve(url, 'img/%s'%nm)
+#baixa_img('https://i.gifer.com/Gckv.gif','exploracao.gif')
