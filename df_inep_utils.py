@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from tqdm import tqdm
+
 def carrega_arquivo_inep(arq,cols=None):
     return pd.read_csv(arq,encoding='latin1',low_memory=False,sep='|',usecols=cols)
 

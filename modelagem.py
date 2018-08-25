@@ -1,3 +1,12 @@
+'''
+
+
+Criado em 21.08.2018, por Ítalo Barreto.
+
+Utilizado para "limpar" o .ipynb das funções de criação de modelo.
+
+'''
+
 import pandas as  pd
 import numpy as np
 from matplotlib import pyplot as plt
@@ -14,14 +23,16 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.metrics import classification_report
 
 
+'''
+
+'''
 def processa_tudo(model_vars,grid_search=False):
-    X_train, X_test, y_train, y_test = gera_datasets(model_vars)
+    X_train, X_test, y_train, y_test = gera_datasets(model_vars,False)
     if grid_search:
         clf = modela_gs_cv(X_test,y_test,RandomForestClassifier(random_state=123))
     else:
         clf = modela(X_train,y_train)
-    return avalia(X_test,y_test,X_train,y_train, clf,model_vars.drop('target',axis=1).columns)
-
+    return avalia(X_test,y_test,X_train,y_train, clf,model_vars.drop('target',axis=1).columns),clf
 
 
 def gera_datasets(model_vars,balanceia = True):
@@ -31,19 +42,19 @@ def gera_datasets(model_vars,balanceia = True):
         md = model_vars.copy()
     X = md.drop('target',axis=1).values
     y = md.target.values
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=0)
-
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
     scaler = MinMaxScaler()
     scaler.fit(X_train)
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
     return X_train, X_test, y_train, y_test
 
+
 def modela(X_train,y_train):
     clf = RandomForestClassifier(random_state=0)
     clf.fit(X_train,y_train)
     return clf
+
 
 def avalia(X_test,y_test,X_train,y_train, clf,cols):
     y_pred = clf.predict(X_test)
@@ -75,8 +86,6 @@ def avalia(X_test,y_test,X_train,y_train, clf,cols):
         for f in range(X_test.shape[1]):
             fi.append(cols[indices[f]])
             print("%d. feature %s (%f)" % (f + 1, cols[indices[f]], importances[indices[f]]))
-
-        # Plot the feature importances of the forest
         plt.figure()
         plt.title("Feature importances")
         plt.bar(range(X_test.shape[1]), importances[indices],
@@ -87,11 +96,7 @@ def avalia(X_test,y_test,X_train,y_train, clf,cols):
     except:
         print('Nao foi possivel mostrar o feature importance.')
         pass
-
-
     return fi
-
-
 
 
 # Utility function to report best scores
@@ -106,10 +111,7 @@ def report(results, n_top=3):
             print("Parameters: {0}".format(results['params'][candidate]))
             print("")
 
-
-
 def modela_gs_cv(X_test,y_test,clf):
-
     # specify parameters and distributions to sample from
     param_dist = {"max_depth": [3, None],
                   "max_features": sp_randint(1, 11),
@@ -117,23 +119,20 @@ def modela_gs_cv(X_test,y_test,clf):
                   "min_samples_leaf": sp_randint(1, 11),
                   "bootstrap": [True, False],
                   "criterion": ["gini", "entropy"]}
-
     # run randomized search
     n_iter_search = 20
     random_search = RandomizedSearchCV(clf, param_distributions=param_dist,
                                        n_iter=n_iter_search)
-
     start = time()
     random_search.fit(X_test, y_test)
     print("RandomizedSearchCV took %.2f seconds for %d candidates"
           " parameter settings." % ((time() - start), n_iter_search))
     report(random_search.cv_results_)
-
     # use a full grid over all parameters
-    param_grid = {"max_depth": [3, None],
-                  "max_features": [1, 3, 10],
-                  "min_samples_split": [2, 3, 10],
-                  "min_samples_leaf": [1, 3, 10],
+    param_grid = {"max_depth": [3, None,10],
+                  "max_features": [1, 3, 10,25],
+                  "min_samples_split": [2, 3, 10,20],
+                  "min_samples_leaf": [1, 3, 10,20],
                   "bootstrap": [True, False],
                   "criterion": ["gini", "entropy"]}
 
