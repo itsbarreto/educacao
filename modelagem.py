@@ -27,7 +27,7 @@ from sklearn.metrics import classification_report
 
 '''
 def processa_tudo(model_vars,grid_search=False):
-    X_train, X_test, y_train, y_test = gera_datasets(model_vars,False)
+    X_train, X_test, y_train, y_test = gera_datasets(model_vars,True)
     if grid_search:
         clf = modela_gs_cv(X_test,y_test,RandomForestClassifier(random_state=123))
     else:
@@ -129,10 +129,10 @@ def modela_gs_cv(X_test,y_test,clf):
           " parameter settings." % ((time() - start), n_iter_search))
     report(random_search.cv_results_)
     # use a full grid over all parameters
-    param_grid = {"max_depth": [3, None,10],
-                  "max_features": [1, 3, 10,25],
-                  "min_samples_split": [2, 3, 10,20],
-                  "min_samples_leaf": [1, 3, 10,20],
+    param_grid = {"max_depth": [3, None],
+                  "max_features": [1, 3, 10],
+                  "min_samples_split": [2, 3, 10],
+                  "min_samples_leaf": [1, 3, 10],
                   "bootstrap": [True, False],
                   "criterion": ["gini", "entropy"]}
 
