@@ -38,7 +38,8 @@ def ajusta_colunas_int_df_inep(df, vai_printar_cols = True):
 def monta_df_docente(arq):
     df = carrega_arquivo_inep(arq)
     df = df.fillna(-1)
-    return ajusta_colunas_int_df_inep(df)
+    df = ajusta_colunas_int_df_inep(df)
+    return df.replace(-1,np.nan)
 
 #monta um dataframe cuja cada linha e um professor
 def monta_df_professores(df):
