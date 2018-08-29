@@ -6,12 +6,12 @@ def carrega_arquivo_inep(arq,cols=None):
     return pd.read_csv(arq,encoding='latin1',low_memory=False,sep='|',usecols=cols)
 
 #reduz o tamanho para economizar memoria
-def ajusta_colunas_int_df_inep(df, vai_printar_cols = True):
+def ajusta_colunas_int_df_inep(df, vai_printar_cols = False):
     ls_itips = [np.int8,np.int16,np.int32,np.int64]
     ls_ftips = [np.float16,np.float32,np.float64]
     for c in df.columns:
         try:
-            if c.startswith('IN_'):
+            if c.startswith('IN_') or c.startswith('ID_'):
                 try:
                     df[c] = df[c].astype(np.int8)
                     break;
