@@ -12,8 +12,11 @@ def ajusta_colunas_int_df_inep(df, vai_printar_cols = False):
     for c in df.columns:
         try:
             if c.startswith('IN_') or c.startswith('ID_'):
+                m = int(max(df[c].values))
                 try:
-                    df[c] = df[c].astype(np.int8)
+                    for t in ls_itips:
+                        if m < np.iinfo(t).max():
+                            df[c] = df[c].astype(t)
                     break;
                 except:
                     pass
@@ -30,7 +33,7 @@ def ajusta_colunas_int_df_inep(df, vai_printar_cols = False):
                         df[c] = df[c].astype(t)
                         break;
         except Exception as e:
-            print('%s-%s ' %(c, str(e)))
+            pass
         if vai_printar_cols:
             print(f'{c}: {df[c].dtype}')
     return df
