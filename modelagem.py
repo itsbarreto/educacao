@@ -21,32 +21,32 @@ from scipy.stats import randint as sp_randint
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.metrics import classification_report
-
-
-'''
+import seaborn as sns
 
 '''
-def processa_tudo(model_vars,grid_search=False):
-    X_train, X_test, y_train, y_test = gera_datasets(model_vars,True)
+
+'''
+def processa_tudo(model_vars,grid_search=False,tg='target',vai_escalar=True):
+    X_train, X_test, y_train, y_test = gera_datasets(model_vars,False,tg=tg,vai_escalar=True)
     if grid_search:
         clf = modela_gs_cv(X_test,y_test,RandomForestClassifier(random_state=123))
     else:
         clf = modela(X_train,y_train)
-    return avalia(X_test,y_test,X_train,y_train, clf,model_vars.drop('target',axis=1).columns),clf
+    return avalia(X_test,y_test,X_train,y_train, clf,model_vars.drop(tg,axis=1).columns),clf
 
 
-def gera_datasets(model_vars,balanceia = True):
+def gera_datasets(model_vars,balanceia = True,tg='target',vai_escalar=True):
+    md = model_vars.copy()
     if balanceia:
-        md = model_vars.loc[model_vars.target == 0].sample(sum(model_vars.target.values),random_state=42).append(model_vars.loc[model_vars.target == 1])
-    else:
-        md = model_vars.copy()
-    X = md.drop('target',axis=1).values
-    y = md.target.values
+        md = model_vars.loc[model_vars[tg] == 0].sample(sum(model_vars[tg].values),random_state=42).append(model_vars.loc[model_vars[tg] == 1])
+    X = md.drop(tg,axis=1).values
+    y = np.array(md[tg].values)
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
-    scaler = MinMaxScaler()
-    scaler.fit(X_train)
-    X_train = scaler.transform(X_train)
-    X_test = scaler.transform(X_test)
+    if vai_escalar:
+        scaler = MinMaxScaler()
+        scaler.fit(X_train)
+        X_train = scaler.transform(X_train)
+        X_test = scaler.transform(X_test)
     return X_train, X_test, y_train, y_test
 
 
@@ -58,7 +58,7 @@ def modela(X_train,y_train):
 
 def avalia(X_test,y_test,X_train,y_train, clf,cols):
     y_pred = clf.predict(X_test)
-    display(confusion_matrix(y_test, y_pred))
+    print_confusion_matrix(confusion_matrix(y_test, y_pred),sorted(set(y_train)))
     print('Base de TREINO')
     print(classification_report(y_train, clf.predict(X_train)))
     print('Base de TESTE')
@@ -144,3 +144,52 @@ def modela_gs_cv(X_test,y_test,clf):
           % (time() - start, len(grid_search.cv_results_['params'])))
     report(grid_search.cv_results_)
     return grid_search
+
+from sklearn.cluster import KMeans
+import numpy as np
+def kmeans_professores(df,ncl):
+    scaler = MinMaxScaler()
+    data = df.values
+    scaler.fit(data)
+    X = scaler.transform(data)
+
+    kmeans = KMeans(n_clusters=ncl, random_state=0).fit(X)
+    return kmeans
+
+
+
+
+def print_confusion_matrix(confusion_matrix, class_names, figsize = (10,7), fontsize=14):
+    """Prints a confusion matrix, as returned by sklearn.metrics.confusion_matrix, as a heatmap.
+
+    Arguments
+    ---------
+    confusion_matrix: numpy.ndarray
+        The numpy.ndarray object returned from a call to sklearn.metrics.confusion_matrix.
+        Similarly constructed ndarrays can also be used.
+    class_names: list
+        An ordered list of class names, in the order they index the given confusion matrix.
+    figsize: tuple
+        A 2-long tuple, the first value determining the horizontal size of the ouputted figure,
+        the second determining the vertical size. Defaults to (10,7).
+    fontsize: int
+        Font size for axes labels. Defaults to 14.
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The resulting confusion matrix figure
+    """
+    df_cm = pd.DataFrame(
+        confusion_matrix, index=class_names, columns=class_names,
+    )
+    fig = plt.figure(figsize=figsize)
+    try:
+        heatmap = sns.heatmap(df_cm, annot=True, fmt="d")
+    except ValueError:
+        raise ValueError("Confusion matrix values must be integers.")
+    heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=fontsize)
+    heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45, ha='right', fontsize=fontsize)
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+    return fig
