@@ -3,7 +3,7 @@ import numpy as np
 from tqdm import tqdm
 
 def carrega_arquivo_inep(arq,cols=None):
-    return pd.read_csv(arq,encoding='latin1',low_memory=False,sep='|',usecols=cols)
+    return pd.read_csv(arq,encoding='latin1',low_memory=False, sep='|',usecols=cols)
 
 #reduz o tamanho para economizar memoria
 def ajusta_colunas_int_df_inep(df, vai_printar_cols = False):

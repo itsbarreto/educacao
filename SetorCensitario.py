@@ -72,32 +72,6 @@ def dados_setor_censitario(path_csv,arq_shp,escolas):
     dados_censo['dr1'] = {'cols' : cols_dr1, 'dados' : df_dr1, 'linha' : None}
     del cols_dr1,df_dr1
 
-    #setores censitários vizinhos.
-    cols_ent1 = ['Cod_setor', 'V001']
-    df_ent1 = importa_df_censo('%sEntorno01_DF.csv'%(path_csv),cols_ent1)
-    df_ent1.replace(to_replace='X', value='0',inplace=True)
-    for c in df_ent1.columns:
-        df_ent1[c] = df_ent1[c].astype(np.int64)
-    dados_censo['ent1'] = {'cols' : cols_ent1, 'dados' : df_ent1, 'linha' : None}
-    del cols_ent1,df_ent1
-
-    #mais setores censitários vizinhos.
-    cols_ent2 = ['Cod_setor']+[ 'V' + str(i).zfill(3) for i in range(262,274)]
-    df_ent2 = importa_df_censo('%sEntorno02_DF.csv'%(path_csv),cols_ent2)
-    df_ent2.replace(to_replace='X', value='0',inplace=True)
-    for c in df_ent2.columns:
-        df_ent2[c] = df_ent2[c].astype(np.int64)
-    dados_censo['ent2'] = {'cols' : cols_ent2, 'dados' : df_ent2, 'linha' : None}
-    del cols_ent2,df_ent2
-
-    #ainda mais setores censitários vizinhos.
-    cols_ent3 = ['Cod_setor','V422']
-    df_ent3 = importa_df_censo('%sEntorno03_DF.csv'%(path_csv),cols_ent3)
-    df_ent3.replace(to_replace='X', value='0',inplace=True)
-    for c in df_ent3.columns:
-        df_ent3[c] = df_ent3[c].astype(np.int64)
-    dados_censo['ent3'] = {'cols' : cols_ent3, 'dados' : df_ent3, 'linha' : None}
-    del cols_ent3,df_ent3
 
     #função que retorna os dados de interesse.
     calcula_dados = lambda area: {
@@ -112,10 +86,7 @@ def dados_setor_censitario(path_csv,arq_shp,escolas):
         'renda_media_dom' : int(dados_censo['dr1']['linha']['V002'].values[0])/int(dados_censo['dom01']['linha']['V002'].values[0]) if not dados_censo['dom01']['linha'] is None and int(dados_censo['dom01']['linha']['V002'].values[0])>0 else np.nan,
         'qtd_dom_renda_per_cap_abx_1sm' : np.sum([int(dados_censo['dr1']['linha']['V'+str(i).zfill(3)]) for i in range(5,9)])  if not dados_censo['dr1']['linha'] is None else np.nan,
         'qtd_dom_renda_max_per_mais_5sm' : np.sum([int(dados_censo['dr1']['linha']['V'+str(i).zfill(3)]) for i in range(12,14)])  if not dados_censo['dr1']['linha'] is None else np.nan,
-        'qtd_dom_renda_per_cap_abx_1sm_vizinhos' : np.sum(dados_censo['ent2']['linha'][['V'+str(i).zfill(3) for i in range(262,268)]].values) if not dados_censo['ent2']['linha'] is None else np.nan,
         'qtd_pessoas' : dados_censo['pss13']['linha']['pop_ttl'].values[0] if not dados_censo['pss13']['linha'] is None else np.nan,
-        'qtd_pessoas_vizinhos' : int(dados_censo['ent3']['linha']['V422'].values[0]) if not dados_censo['ent3']['linha'] is None else np.nan,
-        'qtd_dom_vizinhos' : int(dados_censo['ent1']['linha']['V001']) if not dados_censo['ent1']['linha'] is None else np.nan,
         'qtd_mulheres_resp' : int(dados_censo['pss12']['linha']['V003'])  if not dados_censo['pss12']['linha'] is None else np.nan,
         'qtd_mulheres' : int(dados_censo['pss12']['linha']['V001'])  if not dados_censo['pss12']['linha'] is None else np.nan,
         'qtd_pss_abx_12' : np.sum(dados_censo['pss13']['linha'][['V'+str(i).zfill(3) for i in range(22,46)]].values)  if not dados_censo['pss13']['linha'] is None else np.nan,

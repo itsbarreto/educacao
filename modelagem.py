@@ -58,11 +58,12 @@ def modela(X_train,y_train):
 
 def avalia(X_test,y_test,X_train,y_train, clf,cols):
     y_pred = clf.predict(X_test)
-    print_confusion_matrix(confusion_matrix(y_test, y_pred),sorted(set(y_train)))
     print('Base de TREINO')
     print(classification_report(y_train, clf.predict(X_train)))
     print('Base de TESTE')
     print(classification_report(y_test, y_pred))
+    print_confusion_matrix(confusion_matrix(y_test, y_pred),sorted(set(y_train)))
+    plt.show()
     try:
         y_pred_proba = clf.predict_proba(X_test)[::,1]
         fpr, tpr, _ = metrics.roc_curve(y_test,  y_pred_proba)
@@ -193,3 +194,43 @@ def print_confusion_matrix(confusion_matrix, class_names, figsize = (10,7), font
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     return fig
+
+
+from scipy.cluster.hierarchy import dendrogram, linkage
+from matplotlib import pyplot as plt
+
+def hirarquical_cluster(df,classes):
+    linked = linkage(df.values, 'single')
+
+    labelList = classes
+
+    plt.figure(figsize=(10, 7))
+    dendrogram(linked,
+                orientation='top',
+                labels=labelList,
+                distance_sort='descending',
+                show_leaf_counts=True)
+    plt.show()
+
+
+
+def magnify():
+    return [dict(selector="th",
+                 props=[("font-size", "7pt")]),
+            dict(selector="td",
+                 props=[('padding', "0em 0em")]),
+            dict(selector="th:hover",
+                 props=[("font-size", "12pt")]),
+            dict(selector="tr:hover td:hover",
+                 props=[('max-width', '200px'),
+                        ('font-size', '12pt')])
+            ]
+
+
+def plota_matriz_heatmap(df):
+    cmap = cmap=sns.diverging_palette(5, 250, as_cmap=True)
+    return df.style.background_gradient(cmap, axis=1)\
+        .set_properties(**{'max-width': '80px', 'font-size': '10pt'})\
+        .set_caption("Hover to magify")\
+        .set_precision(2)\
+        .set_table_styles(magnify())
