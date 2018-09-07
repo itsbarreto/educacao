@@ -22,7 +22,8 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.metrics import classification_report
 import seaborn as sns
-
+from sklearn.cluster import DBSCAN
+from sklearn.cluster import MiniBatchKMeans
 '''
 
 '''
@@ -148,13 +149,13 @@ def modela_gs_cv(X_test,y_test,clf):
 
 from sklearn.cluster import KMeans
 import numpy as np
-def kmeans_professores(df,ncl):
+def kmeans_professores(df,ncl,rs=0):
     scaler = MinMaxScaler()
     data = df.values
     scaler.fit(data)
     X = scaler.transform(data)
 
-    kmeans = KMeans(n_clusters=ncl, random_state=0).fit(X)
+    kmeans = KMeans(n_clusters=ncl, random_state=rs).fit(X)
     return kmeans
 
 
@@ -234,3 +235,33 @@ def plota_matriz_heatmap(df):
         .set_caption("Hover to magify")\
         .set_precision(2)\
         .set_table_styles(magnify())
+
+def za_km_minibatch(nc,df):
+    km = MiniBatchKMeans(n_clusters=nc, random_state=25 ).fit(df)
+    return km
+
+
+def clusteriza_dbscan(df):
+    X = MinMaxScaler().fit_transform(df.values)
+
+    # #############################################################################
+    # Compute DBSCAN
+    db = DBSCAN(eps=0.3, min_samples=10).fit(X)
+    core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
+    core_samples_mask[db.core_sample_indices_] = True
+    labels = db.labels_
+
+    # Number of clusters in labels, ignoring noise if present.
+    n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+
+    print('Estimated number of clusters: %d' % n_clusters_)
+    print("Homogeneity: %0.3f" % metrics.homogeneity_score(labels_true, labels))
+    print("Completeness: %0.3f" % metrics.completeness_score(labels_true, labels))
+    print("V-measure: %0.3f" % metrics.v_measure_score(labels_true, labels))
+    print("Adjusted Rand Index: %0.3f"
+          % metrics.adjusted_rand_score(labels_true, labels))
+    print("Adjusted Mutual Information: %0.3f"
+          % metrics.adjusted_mutual_info_score(labels_true, labels))
+    print("Silhouette Coefficient: %0.3f"
+          % metrics.silhouette_score(X, labels))
+    return labels

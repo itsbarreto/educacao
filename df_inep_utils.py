@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+from IPython.core.display import display, HTML
+from matplotlib import pyplot as plt
 
 def carrega_arquivo_inep(arq,cols=None):
     return pd.read_csv(arq,encoding='latin1',low_memory=False, sep='|',usecols=cols)
@@ -224,3 +226,32 @@ def monta_por_tip_serie(df,tip,ano,nivel_escola=True):
     qtds.reset_index(inplace=True)
     qtds.columns =  cols_base + [f'NU_QTD_TURMAS_{tip}_{ano}']
     return qtds
+
+
+
+
+
+
+def explora_df(df,var_cor = None):
+    qtd_ttl = df.shape[0]
+    for i,c in enumerate(df.columns):
+        display(HTML(f'<h2>{i+1}. {c}</h2>'))
+        pc_nulos = df[c].isnull().sum() / qtd_ttl * 100
+        display(f'{pc_nulos}% de registros nulos')
+        display(f'Variância: {df[c].var()}')
+        if var_cor:
+            display(f'Correlacao:')
+            for v in var_cor:
+                display(df[[c,v]].corr())
+                sns.violinplot(x=v,y=c,data=df)
+                plt.show()
+        if len(df[c].value_counts().values) > 10:
+            display(df[c].describe())
+        else:
+            a = pd.DataFrame(df[c].value_counts())
+            a.columns = ['qtd']
+            a['pc'] = a['qtd']/qtd_ttl
+            display(a)
+        df[c].hist(bins=30)
+        plt.show()
+        display(HTML('<hr/>'))
