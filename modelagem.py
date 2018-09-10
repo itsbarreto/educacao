@@ -57,8 +57,9 @@ def modela(X_train,y_train):
     return clf
 
 
-def avalia(X_test,y_test,X_train,y_train, clf,cols):
-    y_pred = clf.predict(X_test)
+def avalia(X_test,y_test,X_train,y_train, clf,cols,y_pred=None):
+    if not y_pred:
+        y_pred = clf.predict(X_test)
     print('Base de TREINO')
     print(classification_report(y_train, clf.predict(X_train)))
     print('Base de TESTE')
