@@ -68,8 +68,9 @@ def avalia(X_test,y_test,X_train,y_train, clf,cols,y_pred=None):
     plt.show()
     try:
         y_pred_proba = clf.predict_proba(X_test)[::,1]
-        fpr, tpr, _ = metrics.roc_curve(y_test,  y_pred_proba)
+        fpr, tpr, _ = metrics.roc_curve(y_test,  y_pred_proba   )
         auc = metrics.roc_auc_score(y_test, y_pred_proba)
+
         plt.plot(fpr,tpr,label="Base de teste, auc="+str(auc))
         plt.legend(loc=4)
         plt.show()
@@ -83,21 +84,31 @@ def avalia(X_test,y_test,X_train,y_train, clf,cols,y_pred=None):
     fi = []
     try:
         importances = clf.feature_importances_
-        std = np.std([tree.feature_importances_ for tree in clf.estimators_],
-                     axis=0)
+        std = None
+        try:
+            std = np.std([tree.feature_importances_ for tree in clf.estimators_],
+                         axis=0)
+        except Exception as e:
+            pass
         indices = np.argsort(importances)[::-1]
         for f in range(X_test.shape[1]):
             fi.append(cols[indices[f]])
             print("%d. feature %s (%f)" % (f + 1, cols[indices[f]], importances[indices[f]]))
         plt.figure()
         plt.title("Feature importances")
-        plt.bar(range(X_test.shape[1]), importances[indices],
-               color="r", yerr=std[indices], align="center")
+        if std:
+            plt.bar(range(X_test.shape[1]), importances[indices],
+                   color="r", yerr=std[indices], align="center")
+        else:
+            plt.bar(range(X_test.shape[1]), importances[indices],
+                   color="r", align="center")
         plt.xticks(range(X_test.shape[1]), indices)
         plt.xlim([-1, X_test.shape[1]])
         plt.show()
-    except:
+
+    except Exception as e:
         print('Nao foi possivel mostrar o feature importance.')
+        print(e)
         pass
     return fi
 
@@ -112,7 +123,9 @@ def report(results, n_top=3):
                   results['mean_test_score'][candidate],
                   results['std_test_score'][candidate]))
             print("Parameters: {0}".format(results['params'][candidate]))
-            print("")
+            earch = 20
+            pass
+            random_sprint("")
 
 def modela_gs_cv(X_test,y_test,clf):
     # specify parameters and distributions to sample from
@@ -123,8 +136,7 @@ def modela_gs_cv(X_test,y_test,clf):
                   "bootstrap": [True, False],
                   "criterion": ["gini", "entropy"]}
     # run randomized search
-    n_iter_search = 20
-    random_search = RandomizedSearchCV(clf, param_distributions=param_dist,
+    n_iter_search = RandomizedSearchCV(clf, param_distributions=param_dist,
                                        n_iter=n_iter_search)
     start = time()
     random_search.fit(X_test, y_test)

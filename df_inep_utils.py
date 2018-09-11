@@ -3,7 +3,7 @@ import numpy as np
 from tqdm import tqdm
 from IPython.core.display import display, HTML
 from matplotlib import pyplot as plt
-
+import seaborn as sns
 def carrega_arquivo_inep(arq,cols=None):
     return pd.read_csv(arq,encoding='latin1',low_memory=False, sep='|',usecols=cols)
 
