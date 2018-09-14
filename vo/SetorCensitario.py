@@ -72,7 +72,6 @@ def dados_setor_censitario(path_csv,arq_shp,escolas):
     dados_censo['dr1'] = {'cols' : cols_dr1, 'dados' : df_dr1, 'linha' : None}
     del cols_dr1,df_dr1
 
-
     #função que retorna os dados de interesse.
     calcula_dados = lambda area: {
         'sit_setor' : dados_censo['dom01']['linha']['Situacao_setor'].values[0] if not dados_censo['dom01']['linha'] is None else np.nan,

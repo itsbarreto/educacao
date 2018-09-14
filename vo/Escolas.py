@@ -5,7 +5,9 @@ Modulo para tratamento do arquivo ESCOLAS.csv
 
 import os
 import pandas as pd
+import numpy as np
 from glob import glob
+
 from raw_data import constantes as CONST
 from educ_utils import df_inep_utils as DIU
 from vo import SetorCensitario
@@ -81,6 +83,7 @@ class EscolasVO:
         #monta um dicionario com os anos como chave e com os DataFrames como valores
         return {a : self.filtra_escolas(self.carrega_csv_escolas(str(a)),int(a))
                     for a in CONST.ANOS_PESQUISA}
+
     def filtra_escolas(self, df : pd.DataFrame,ano : int) -> pd.DataFrame:
         #filtra o dataframe com as colunas corretas para cada ano
         if ano < 2015:
@@ -100,8 +103,6 @@ class EscolasVO:
             d = DIU.monta_df_inep(arq_csv)
             d.to_csv(arq_filtrado)
             return d
-
-
 
     def monta_features_escolas(self,fte : pd.DataFrame) -> pd.DataFrame:
         #cria novas features para o DataFrame de escolas
@@ -155,14 +156,24 @@ class EscolasVO:
         return set_agp_esc
 
     def monta_geo_df_escolas(self,df : pd.DataFrame) -> pd.DataFrame:
-        geo_esc = DIU.ajusta_colunas_int_df_inep( pd.read_csv('%slclz_df/DADOS_ESCOLAS_PUBLICAS.csv' %CONST.CSV_PATH,index_col='CO_ENTIDADE'))
+        #adiciona dados de geolocalizacao e setores censitarios aos DataFrame
+        arq_csv_sc = CONST.ARQ_PATH + 'escolas_setores_censitarios.csv'
+        geo_esc = DIU.ajusta_colunas_int_df_inep(
+                    pd.read_csv(
+                        '%slclz_df/DADOS_ESCOLAS_PUBLICAS.csv' %CONST.CSV_PATH,
+                        index_col='CO_ENTIDADE'
+                            )
+                    )
         df = df.merge(geo_esc.loc[geo_esc.PREC_BOA==1][['LAT','LONG']],
                                     left_on='CO_ENTIDADE',
                                     right_index=True)
-        dsc = SetorCensitario.dados_setor_censitario(('%slclz_df/censo_df/dados/' %CONST.CSV_PATH),
-                                     glob(('%slclz_df/censo_df/*.shp' %(CONST.CSV_PATH)))[0],
-                                     df)
-        #remove registros nulos
+        if os.path.exists(arq_csv_sc):
+            dsc = pd.read_csv(arq_csv_sc,low_memory=False)
+        else:
+            dsc = SetorCensitario.dados_setor_censitario(('%slclz_df/censo_df/dados/' %CONST.CSV_PATH),
+                                         glob(('%slclz_df/censo_df/*.shp' %(CONST.CSV_PATH)))[0],
+                                         df)
+            dsc.to_csv(arq_csv_sc)
         dsc = self.monta_features_geo_escolas(dsc.dropna().drop_duplicates())
         #ajuste de tipos para otimizar o uso da memória
         for col in dsc.columns:
@@ -171,7 +182,7 @@ class EscolasVO:
             else:
                 dsc[col] = dsc[col].astype(np.int16)
         dsc.index = dsc.index.astype(np.int64)
-        df = df.drop(['LAT','LONG'],axis=1).merge(dsc,left_index=True,right_index=True)
+        df = df.drop(['LAT','LONG'],axis=1).merge(dsc,left_on='CO_ENTIDADE',right_index=True)
         return df
 
     def monta_df_escolas(self) -> pd.DataFrame:
@@ -189,4 +200,5 @@ class EscolasVO:
                 self.df_escolas = DIU.ajusta_colunas_int_df_inep(pd.read_csv(arq_filtrado,low_memory=False,index_col='CO_ENTIDADE'))
             else:
                 self.df_escolas = self.monta_df_escolas()
+                self.df_escolas.to_csv(arq_filtrado)
         return self.df_escolas
