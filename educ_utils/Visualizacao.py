@@ -17,13 +17,21 @@ def explora_df(df : pd.DataFrame,var_cor = None):
         display(HTML(f'<h2>{i+1}. {c}</h2>'))
         pc_nulos = df[c].isnull().sum() / qtd_ttl * 100
         display(f'{pc_nulos}% de registros nulos')
-        display(f'Variância: {df[c].var()}')
+        try:
+            display(f'Variância: {df[c].var()}')
+        except:
+            print('Não foi possível calcular a variância.')
+            pass
         if var_cor:
-            display(f'Correlacao:')
-            for v in var_cor:
-                display(df[[c,v]].corr())
-                sns.violinplot(x=v,y=c,data=df)
-                plt.show()
+            try:
+                display(f'Correlacao:')
+                for v in var_cor:
+                    display(df[[c,v]].corr())
+                    sns.violinplot(x=v,y=c,data=df)
+                    plt.show()
+            except:
+                print('Não foi possível calcular a correlação.')
+                pass
         if len(df[c].value_counts().values) > 10:
             display(df[c].describe())
         else:
