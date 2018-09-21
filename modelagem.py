@@ -27,7 +27,7 @@ from sklearn.cluster import MiniBatchKMeans
 
 def processa_tudo(model_vars : pd.DataFrame,grid_search=False,tg='target',vai_escalar=True,clf=None):
     """
-        Função que executa e avalia um RandomForestClassifier padrão
+        Função que executa e avalia um classificador padrão
         (com grid_search ou não).
 
         Arguments
@@ -42,7 +42,8 @@ def processa_tudo(model_vars : pd.DataFrame,grid_search=False,tg='target',vai_es
         vai_escalar: bool
             Se os dados passarão por um MinMaxScaler.
         clf:
-            Algum classificador que possua método fit
+            Algum classificador que possua método fit, em caso de ser None o
+            classificador será um sklearn.ensemble.RandomForestClassifier
 
         Returns
         -------
