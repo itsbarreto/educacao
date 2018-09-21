@@ -24,15 +24,37 @@ from sklearn.metrics import classification_report
 import seaborn as sns
 from sklearn.cluster import DBSCAN
 from sklearn.cluster import MiniBatchKMeans
-'''
 
-'''
-def processa_tudo(model_vars,grid_search=False,tg='target',vai_escalar=True):
+def processa_tudo(model_vars : pd.DataFrame,grid_search=False,tg='target',vai_escalar=True,clf=None):
+    """
+        Função que executa e avalia um RandomForestClassifier padrão
+        (com grid_search ou não).
+
+        Arguments
+        ---------
+        model_vars: pandas.DataFrame
+            A tabela com os dados para modelagem, a variável target deve ser uma
+            das colunas desse DataFrame.
+        grid_search: bool
+            Se a modelagem incluirá o grid de parâmetros.
+        tg: str
+            Nome da coluna que será a target do modelo.
+        vai_escalar: bool
+            Se os dados passarão por um MinMaxScaler.
+        clf:
+            Algum classificador que possua método fit
+
+        Returns
+        -------
+        tuple
+            Em que o primeiro é uma lista com o feature importance (caso haja) e
+            o segundo é o classificador.
+    """
     X_train, X_test, y_train, y_test = gera_datasets(model_vars,False,tg=tg,vai_escalar=True)
     if grid_search:
         clf = modela_gs_cv(X_test,y_test,RandomForestClassifier(random_state=123))
     else:
-        clf = modela(X_train,y_train)
+        clf = modela(X_train,y_train,clf)
     return avalia(X_test,y_test,X_train,y_train, clf,model_vars.drop(tg,axis=1).columns),clf
 
 
@@ -51,8 +73,9 @@ def gera_datasets(model_vars,balanceia = True,tg='target',vai_escalar=True):
     return X_train, X_test, y_train, y_test
 
 
-def modela(X_train,y_train):
-    clf = RandomForestClassifier(random_state=0)
+def modela(X_train,y_train,clf=None):
+    if clf is None:
+        clf = RandomForestClassifier(random_state=0)
     clf.fit(X_train,y_train)
     return clf
 
@@ -107,7 +130,7 @@ def avalia(X_test,y_test,X_train,y_train, clf,cols,y_pred=None):
         plt.show()
 
     except Exception as e:
-        print('Nao foi possivel mostrar o feature importance.')
+        print('Nao foi possivel plotar o feature importance.')
         print(e)
         pass
     return fi
