@@ -10,7 +10,9 @@ Esse projeto visa investigar as causas que levaram professores da rede pública 
 ### Ferramental:
 
 #### Enviroment:
-Python 3.6.4 |Anaconda custom (64-bit)
+- OS: Ubuntu 16.04
+- Python 3.6.4 | Anaconda custom (64-bit)
+
 
 #### Bibliotecas utilizadas:
 
@@ -39,3 +41,8 @@ Para visualização correta favor abrir no jupyter notebook pois o visualizador 
 04. Investigação da base construída (EDA_Professores.ipynb)
 
 Os arquivos não mencionados aqui servem para suporte dos referidos programas.
+
+#### Atalho:
+É possível executar diretamente o arquivo EDA_Professores.ipynb desde que:
+- o arquivo model_vars exista (pode ser baixado nesse [link](https://www.dropbox.com/s/igdnw2gu6tybq2z/model_vars.csv?dl=0)).
+- editar a estrutura de diretórios nas variáveis CSV_PATH e PATH_DF_CSV que estão declaradas no arquivo raw_data/constantes.py.
