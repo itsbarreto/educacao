@@ -7,20 +7,9 @@
 ### Objetivo:
 Esse projeto visa investigar as causas que levaram professores da rede pública do DF a sair da escola que estavam lotados no ano de 2015. Para avaliar a rotatividade comparei com a base de 2017.
 
-### Organização do projeto:
-
-#### Por ordem de execução
-
-01. Download dos arquivos do site do Inep Data (raw_data/inep_files.py).
-02. Descompactação dos arquivos de interesse (raw_data/inep_files.py).
-03. Construção da base de estudo (MontagemDasBases.ipynb).
-04. Investigação da base construída (EDA_Professores.ipynb)
-
-Os arquivos não mencionados aqui servem para suporte dos referidos programas.
-
 ### Ferramental:
 
-#### Enviroment: 
+#### Enviroment:
 Python 3.6.4 |Anaconda custom (64-bit)
 
 #### Bibliotecas utilizadas:
@@ -37,5 +26,16 @@ Python 3.6.4 |Anaconda custom (64-bit)
 * xgboost: 0.80
 * tabulate: 0.8.2
 
+Para visualização correta favor abrir no jupyter notebook pois o visualizador do Github não exibe corretamente as saídas html.
 
 
+### Organização do projeto:
+
+#### Por ordem de execução
+
+01. Download dos arquivos do site do Inep Data (raw_data/inep_files.py).
+02. Descompactação dos arquivos de interesse (raw_data/inep_files.py).
+03. Construção da base de estudo (MontagemDasBases.ipynb).
+04. Investigação da base construída (EDA_Professores.ipynb)
+
+Os arquivos não mencionados aqui servem para suporte dos referidos programas.
