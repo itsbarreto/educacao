@@ -171,8 +171,8 @@ def modela_gs_cv(X_test,y_test,clf):
     param_grid = {"max_depth": [3, None],
                   "max_features": [1, 3, 10],
                   "min_samples_split": [2, 3, 10],
-                  "min_samples_leaf": [1, 3, 10],
                   "bootstrap": [True, False],
+                  "min_samples_leaf": [1, 3, 10],
                   "criterion": ["gini", "entropy"]}
 
     # run grid search
